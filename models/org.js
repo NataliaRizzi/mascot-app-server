@@ -37,8 +37,9 @@ const OrganizationSchema = new mongoose.Schema({
   ]
 });
 
-OrganizationSchema.pre('find', function(next) {
-  console.log(this.new)
+
+//why is this function being called when the pet detail route is being visited 
+OrganizationSchema.post('findOneAndUpdate', function(doc) {
   if (!this.new) {
     console.log('not new!!', this.new);
     return next();
@@ -49,12 +50,3 @@ OrganizationSchema.pre('find', function(next) {
 
 module.exports = mongoose.model('Organization', OrganizationSchema);
 
-// if (!checkQuery) {
-//   Organization.findByIdAndUpdate(id, {
-//     $push: {
-//       user,
-//       pet,
-//     },
-//   });
-// } else {
-// }

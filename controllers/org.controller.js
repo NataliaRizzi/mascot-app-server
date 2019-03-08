@@ -51,13 +51,8 @@ exports.adoptionRequest = async (ctx, next) => {
         },
       },
     },{ new: true });
-    // await PetModel.findByIdAndUpdate(
-    //   pet,
-    //   { $set: { available: false } }
-    // );
     ctx.body = adoption;
     ctx.status = 200;
-    // return OrgModel;
   } catch (e) {
     ctx.status = 400;
     ctx.body = {
