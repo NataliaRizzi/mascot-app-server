@@ -37,16 +37,12 @@ const OrganizationSchema = new mongoose.Schema({
   ]
 });
 
-
-//why is this function being called when the pet detail route is being visited 
-OrganizationSchema.post('findOneAndUpdate', function(doc) {
-  if (!this.new) {
-    console.log('not new!!', this.new);
-    return next();
-  } else {
-    next();
-  }
+//why is this function being called when the pet detail route is being visited
+OrganizationSchema.pre('findOneAndUpdate', async function(next) {
+  const query = this.getUpdate();
+  const { user, pet } = query['$push'].queries;
+  console.log(this.getQuery()._id, 'this.new VALUE');
+  next();
 });
 
 module.exports = mongoose.model('Organization', OrganizationSchema);
-

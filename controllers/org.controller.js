@@ -43,6 +43,8 @@ exports.addOrg = async (ctx, next) => {
 exports.adoptionRequest = async (ctx, next) => {
   const { user, pet, org } = ctx.request.body;
   try {
+    // const queries =  await OrgModel.findOne({});
+    // console.log("Here", queries);
     const adoption = await OrgModel.findByIdAndUpdate(org, {
       $push: {
         queries: {
