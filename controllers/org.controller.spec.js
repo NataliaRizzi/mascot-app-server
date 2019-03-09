@@ -1,11 +1,23 @@
 const orgController = require('./org.controller');
 const mockingoose = require('mockingoose').default;
 
-// beforeAll(): connect to database and prepare data
+//beforeAll(): connect to database and prepare data
 // afterAll(): database disconnect and remove them
-
+let orgMock;
 let ctx;
 describe('org controller', () => {
+  beforeAll(() => {
+      orgMock = {
+      _id: '507f191e810c19729de860ea',
+      name: 'Help WOW',
+      location: 'Barcelona',
+      email: 'helpwow@gmail.com',
+      web: 'www.helpwow.com',
+      queries: [],
+      pets: []
+    }
+  })
+
   beforeEach(() => {
     mockingoose.resetAll();
     ctx = {};
@@ -48,4 +60,15 @@ describe('org controller', () => {
     expect(ctx.status).toEqual(400);
     expect(ctx.body).toEqual({ errors: ['My Error'] });
   });
-});
+
+  test('should return an organization', async () => {
+    mockingoose.Organization.toReturn(
+      orgMock,
+      'findOne'
+    );
+    ctx= { params : {org_id: '507f191e810c19729de860ea'}};
+    await orgController.getOrg(ctx);
+    expect(JSON.parse(JSON.stringify(ctx.body))).toEqual(orgMock);
+})
+
+})
