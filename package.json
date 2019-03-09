@@ -20,5 +20,9 @@
     "koa-static": "^4.0.2",
     "mongoose": "^5.0.15",
     "supertest": "^3.4.2"
+  },
+  "devDependencies": {
+    "mockingoose": "^2.12.0",
+    "nodemon": "^1.18.10"
   }
 }
