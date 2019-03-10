@@ -37,7 +37,6 @@ describe('pet controller', () => {
     expect(ctx.body).toEqual({ errors: ["Cannot read property 'pet_id' of undefined"] });
   });
 
-
   test('should add a new pet', async () => {
     const newPet = mockUtils.createPet();
     mockingoose.Pet.toReturn(newPet, 'save');
@@ -45,15 +44,13 @@ describe('pet controller', () => {
     mockingoose.Organization.toReturn(mockUtils.createOrg2(), 'save');
     ctx = { request: { body: newPet } };
     await petController.addPet(ctx);
-    console.log(JSON.parse(JSON.stringify(ctx.response)), 'ctx.response');
+    expect(mockingoose.Organization.toJSON().save.pets[0]).toEqual({ pet_id: newPet._id });
     expect(JSON.parse(JSON.stringify(ctx.response))).toEqual(mockUtils.createPet());
   });
-
 
   test('should throw an error if the body is empty', async () => {
     mockingoose.Pet.toReturn(mockUtils.createPet(), 'findOne');
     await petController.addPet(ctx);
     expect(ctx.body).toEqual({ errors: ["Cannot read property 'body' of undefined"] });
   });
-
 });

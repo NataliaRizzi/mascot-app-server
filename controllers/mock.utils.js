@@ -36,6 +36,6 @@ exports.createOrg2 = () => {
     email: 'helpwow@gmail.com',
     web: 'www.helpwow.com',
     queries: [],
-    pets: [{ pet_id: '507f191e810c19729de860eb' }]
+    pets: [{ pet_id: '507f191e810c19729de860ea' }]
   };
 };
