@@ -29,13 +29,13 @@ exports.addPet = async (ctx, next) => {
   try {
     const org_id = ctx.request.body.organization;
     const newPet = new PetModel(ctx.request.body);
-    newPet.save();
+    await newPet.save();
 
     const org = await OrganizationModel.findById(org_id);
     org.pets.push(newPet);
-    org.save();
+   await  org.save();
 
-    ctx.response = newPet;
+    ctx.body = newPet.toJSON();
     ctx.status = 200;
   } catch (e) {
     ctx.status = 400;
