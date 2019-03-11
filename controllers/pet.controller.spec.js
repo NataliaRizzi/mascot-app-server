@@ -45,7 +45,7 @@ describe('pet controller', () => {
     ctx = { request: { body: newPet } };
     await petController.addPet(ctx);
     expect(mockingoose.Organization.toJSON().save.pets[0]).toEqual({ pet_id: newPet._id });
-    expect(JSON.parse(JSON.stringify(ctx.response))).toEqual(mockUtils.createPet());
+    expect(JSON.parse(JSON.stringify(ctx.body))).toEqual(mockUtils.createPet());
   });
 
   test('should throw an error if the body is empty', async () => {
