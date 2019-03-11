@@ -1,14 +1,12 @@
 const orgController = require("./org.controller");
-const mockingoose = require("mockingoose").default;
 const mockData = require("./mock.utils");
-//beforeAll(): connect to database and prepare data
-// afterAll(): database disconnect and remove them
-let addMockOrg;
-let orgMock;
-let orgWIthQueryMock;
+const OrgModel = require("../models/org");
+const mongoose = require("mongoose");
+
 let ctx;
 describe("org controller", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
+    await mongoose.connect(global.__MONGO_URI__);
     // orgMock = {
     //   _id: '507f191e810c19729de860ea',
     //   name: 'Help WOW',
@@ -46,36 +44,37 @@ describe("org controller", () => {
     };
   });
 
+  // afterAll(() => {
+  //   await mongoose.disconnect();
+  // })
+
   beforeEach(() => {
-    mockingoose.resetAll();
     ctx = {};
   });
 
-  // test('should return all organizations', async () => {
-  //   mockingoose.Organization.toReturn(
-  //     [{
-  //       _id: '507f191e810c19729de860ea',
-  //       name: 'Help WOW',
-  //       location: 'Barcelona',
-  //       email: 'helpwow@gmail.com',
-  //       web: 'www.helpwow.com',
-  //       queries: [],
-  //       pets: []
-  //     }],
-  //     'find'
-  //   );
+  xtest("should return all organizations", async () => {
+    const newOrg = new OrgModel({
+      name: "Help WOW",
+      location: "Barcelona",
+      email: "helpwow@gmail.com",
+      web: "www.helpwow.com",
+      queries: [],
+      pets: []
+    });
+    await newOrg.save();
 
-  //   await orgController.getOrgs(ctx);
-  //   expect(JSON.parse(JSON.stringify(ctx.body))).toEqual([{
-  //     _id: '507f191e810c19729de860ea',
-  //     name: 'Help WOW',
-  //     location: 'Barcelona',
-  //     email: 'helpwow@gmail.com',
-  //     web: 'www.helpwow.com',
-  //     queries: [],
-  //     pets: []
-  //   }]);
-  // });
+    await orgController.getOrgs(ctx);
+    expect(JSON.parse(JSON.stringify(ctx.body))).toMatchObject([
+      {
+        name: "Help WOW",
+        location: "Barcelona",
+        email: "helpwow@gmail.com",
+        web: "www.helpwow.com",
+        queries: [],
+        pets: []
+      }
+    ]);
+  });
 
   // test('should return 400 in case of an error in retrieving organizations', async () => {
   //   mockingoose.Organization.toReturn(new Error('My Error'), 'find');
@@ -139,11 +138,6 @@ describe("org controller", () => {
   // });
 
   test("should send an adoption request if the query doens't exist", async () => {
-    mockingoose.Organization.toReturn(orgWIthQueryMock, "findOneAndUpdate");
-    mockingoose.Organization.toReturn(orgWIthQueryMock, "findOne");
-    const user = "507f191e810c19729de860lk";
-    const pet = mockData.createPet()._id;
-    const org = orgWIthQueryMock._id;
     ctx = { request: { body: { user, pet, org } } };
     await orgController.adoptionRequest(ctx);
     console.log(ctx, "my context");
@@ -151,7 +145,7 @@ describe("org controller", () => {
   });
 
   // fix this as it is throwing an error, instea dof catching it
-  xtest("should return an error if the context for adoption is empty", async () => {
+  test("should return an error if the context for adoption is empty", async () => {
     await orgController.adoptionRequest(ctx);
     expect(ctx.status).toEqual(400);
     expect(ctx.body).toEqual({
