@@ -49,17 +49,28 @@ exports.adoptionRequest = async (ctx, next) => {
     }
     // const queries =  await OrgModel.findOne({});
     // console.log("Here", queries);
-    const adoption = await OrgModel.findByIdAndUpdate(org, {
+    let adoption = ''
+    if (await OrgModel.appendQuery(user, pet, org) ==false){
+      console.log('i am false')
+     adoption = await OrgModel.findByIdAndUpdate(org, {
       $push: {
         queries: {
           user,
           pet,
         },
       },
-    },{ new: true });
+    });
     ctx.body = adoption;
+  } else {
+    console.log('query exists')
+    ctx.body = 'query exists';
+  }
+    // const adoption = await OrgModel.appendQuery(org, {user, pet});
+   
     ctx.status = 200;
   } catch (e) {
+    console.error(e);
+    
     ctx.status = 400;
     ctx.body = {
       errors: [e.message],

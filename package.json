@@ -19,6 +19,7 @@
     "koa-router": "^7.4.0",
     "koa-static": "^4.0.2",
     "mongoose": "^5.0.15",
+    "mongoose-unique-validator": "^2.0.2",
     "supertest": "^3.4.2"
   },
   "devDependencies": {

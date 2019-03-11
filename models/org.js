@@ -28,21 +28,36 @@ const OrganizationSchema = new mongoose.Schema({
     contentType: String,
     required: false
   },
-  queries: [
+  queries:[
     {
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       pet: { type: mongoose.Schema.Types.ObjectId, ref: 'Pet' },
       accepted: { type: Boolean, default: false }
-    }
-  ]
+    }]
+  
 });
 
-//why is this function being called when the pet detail route is being visited
-OrganizationSchema.pre('findOneAndUpdate', async function(next) {
-  const query = this.getUpdate();
-  const { user, pet } = query['$push'].queries;
-  console.log(this.getQuery()._id, 'this.new VALUE');
-  next();
-});
 
-module.exports = mongoose.model('Organization', OrganizationSchema);
+
+
+const Organization = mongoose.model('Organization', OrganizationSchema);;
+
+Organization.appendQuery = async(user, pet, org) => {
+  const organization = Organization.findOne(org);
+
+    const myOrg = await Organization.findById(org)
+  //  console.log('my orgd inside the model', myOrg.toJSON().queries)
+    const myNewArray = myOrg.toJSON().queries.some(element => {
+    console.log( JSON.parse(JSON.stringify(element.user)), user, 'element.user and user');
+  
+      return (JSON.parse(JSON.stringify(element.user))=== user && JSON.parse(JSON.stringify(element.pet))===pet)
+    })
+  console.log(myNewArray, 'value of my new array');
+return myNewArray
+
+  // validate organization is valid
+  // if not throw
+  // save organization
+}
+  
+module.exports = Organization;
