@@ -6,6 +6,7 @@ const PetModel = require("../models/pet");
 exports.getOrgs = async (ctx, next) => {
   try {
     ctx.body = await OrgModel.find();
+    ctx.status = 200;
   } catch (e) {
     ctx.status = 400;
     ctx.body = {
@@ -46,11 +47,11 @@ exports.adoptionRequest = async (ctx, next) => {
   try {
     if (ctx.request.body) {
       const { user, pet, org } = ctx.request.body;
-      // if (!(user && pet && org)){
-      //   throw new Error('user, pet, org are required')
-      // }
+      if (!(user && pet && org)){
+        throw new Error('user, pet, org are required')
+      }
       // const queries =  await OrgModel.findOne({});
-      // console.log("Here", queries);
+
       let adoption = "";
       if ((await OrgModel.appendQuery(user, pet, org)) == false) {
         adoption = await OrgModel.findByIdAndUpdate(org, {
