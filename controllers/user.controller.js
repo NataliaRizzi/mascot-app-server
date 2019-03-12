@@ -3,9 +3,12 @@ const UserModel = require('../models/user');
 const PetModel = require('../models/pet');
 const OrganizationModel = require('../models/org');
 
-const getUsers = async (ctx, next) => {
+const getUsers = async (ctx) => {
   try {
-    ctx.body = await UserModel.find()
+    ctx.body = await UserModel.find();
+    if (ctx.body === undefined) {
+      ctx.body.errors = "Cannot set property 'errors' of undefined";    
+    }
     ctx.status = 200;
   } catch(e) {
     ctx.status = 400;
@@ -15,10 +18,11 @@ const getUsers = async (ctx, next) => {
   }
 }
 
-const getUser = async (ctx, next) => {
+const getUser = async (ctx) => {
   try {
     const id = ctx.params.usr_id
-    ctx.body = await UserModel.findById(id).populate('pets.pet')
+    ctx.body = await UserModel.findById(id);
+    
   } catch(e) {
     ctx.status = 400;
     ctx.body = {
@@ -31,7 +35,7 @@ const acceptAdoption = async (ctx, next) => {
   const { org, pet, query } = ctx.request.body
   const usr_id = ctx.params.usr_id
   try {
-    await UserModel.findByIdAndUpdate(usr_id,
+    const updateUser = await UserModel.findByIdAndUpdate(usr_id,
       { $push: { 
         pets: { 
           org,
@@ -52,6 +56,7 @@ const acceptAdoption = async (ctx, next) => {
       });
     await PetModel.findByIdAndUpdate( pet,
       { adopted: true , owner: usr_id });
+    ctx.body = updateUser;
     ctx.status = 200
   } catch(e) {
     ctx.status = 400;

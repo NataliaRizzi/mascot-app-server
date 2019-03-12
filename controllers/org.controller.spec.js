@@ -19,13 +19,13 @@ describe('org controller', () => {
     };
 
     addMockOrg = {
-      _id: '5c82915a13ce954a0c309562',
+     _id: '5c82915a13ce954a0c309562',
       name: 'Help dos',
       location: 'Barcelona',
       email: 'helpdogs@gmail.com',
       web: 'www.helpdogs.com',
       queries: [],
-      pets: []
+      pets: [] 
     }
   })
 
