@@ -1,148 +1,135 @@
-const orgController = require('./org.controller');
-const mockingoose = require('mockingoose').default;
+const orgController = require("./org.controller");
+const mockData = require("./mock.utils");
+const OrgModel = require("../models/org");
+const UserMOdel = require("../models/user")
+const mongoose = require("mongoose");
 
-//beforeAll(): connect to database and prepare data
-// afterAll(): database disconnect and remove them
-let addMockOrg;
-let orgMock;
 let ctx;
-describe('org controller', () => {
-  beforeAll(() => {
+describe("org controller", () => {
+  beforeAll(async () => {
+    await mongoose.connect(global.__MONGO_URI__);
     orgMock = {
-      _id: '507f191e810c19729de860ea',
-      name: 'Help WOW',
-      location: 'Barcelona',
-      email: 'helpwow@gmail.com',
-      web: 'www.helpwow.com',
+      name: "Help WOW",
+      location: "Barcelona",
+      email: "helpwow@gmail.com",
+      web: "www.helpwow.com",
       queries: [],
       pets: []
     };
 
     addMockOrg = {
-     _id: '5c82915a13ce954a0c309562',
-      name: 'Help dos',
-      location: 'Barcelona',
-      email: 'helpdogs@gmail.com',
-      web: 'www.helpdogs.com',
+      name: "Help dos",
+      location: "Barcelona",
+      email: "helpdogs@gmail.com",
+      web: "www.helpdogs.com",
       queries: [],
-      pets: [] 
-    }
-  })
+      pets: []
+    };
+
+    orgWIthQueryMock = {
+      name: "Help dos tra la",
+      location: "Barcelona",
+      email: "helpdogs@gmail.com",
+      web: "www.helpdogs.com",
+      queries: [
+        {
+          pet: "5c82915a13ce954a0c309569",
+          user: "5c82915a13ce954a0c309569",
+          accepted: false
+        }
+      ],
+      pets: [{ _id: "5c82915a13ce954a0c309569" }]
+    };
+  });
+
+  // afterAll(() => {
+  //   await mongoose.disconnect();
+  // })
 
   beforeEach(() => {
-    mockingoose.resetAll();
     ctx = {};
   });
 
-  test('should return all organizations', async () => {
-    mockingoose.Organization.toReturn(
-      [{
-        _id: '507f191e810c19729de860ea',
-        name: 'Help WOW',
-        location: 'Barcelona',
-        email: 'helpwow@gmail.com',
-        web: 'www.helpwow.com',
-        queries: [],
-        pets: []
-      }],
-      'find'
-    );
-
+  test("should return all organizations", async () => {
+    const newOrg = new OrgModel(orgMock);
+    await newOrg.save();
     await orgController.getOrgs(ctx);
-    expect(JSON.parse(JSON.stringify(ctx.body))).toEqual([{
-      _id: '507f191e810c19729de860ea',
-      name: 'Help WOW',
-      location: 'Barcelona',
-      email: 'helpwow@gmail.com',
-      web: 'www.helpwow.com',
-      queries: [],
-      pets: []
-    }]);
+    expect(JSON.parse(JSON.stringify(ctx.body))).toMatchObject([orgMock]);
   });
 
-  test('should return 400 in case of an error', async () => {
-    mockingoose.Organization.toReturn(new Error('My Error'), 'find');
-
+  // how to test errors in here
+  xtest("should return an empty array if there is no org", async () => {
     await orgController.getOrgs(ctx);
-    expect(ctx.status).toEqual(400);
-    expect(ctx.body).toEqual({
-      errors: ['My Error']
-    });
+    expect(ctx.status).toEqual(200);
+    expect(ctx.body).toEqual([]);
   });
 
   test('should return an organization', async () => {
-    mockingoose.Organization.toReturn(
-      orgMock,
-      'findOne'
-    );
+    const newOrg = new OrgModel(orgMock);
+   const newOrgId =  await newOrg.save()
+   const org_id = newOrgId._id.toJSON()
     ctx = {
       params: {
-        org_id: '507f191e810c19729de860ea'
+        org_id
       }
     };
     await orgController.getOrg(ctx);
-    expect(JSON.parse(JSON.stringify(ctx.body))).toEqual(orgMock);
+    expect(JSON.parse(JSON.stringify(ctx.body))).toMatchObject(orgMock);
   })
 
-  test('should throw an error if there is no id ', async () => {
-    mockingoose.Organization.toReturn(
-      orgMock,
-      'findOne'
-    );
+  test("should throw an error if there is no id for the organization", async () => {
+    const newOrg = new OrgModel(addMockOrg);
+    await newOrg.save();
     await orgController.getOrg(ctx);
     expect(ctx.status).toEqual(400);
     expect(ctx.body).toEqual({
       errors: ["Cannot read property 'org_id' of undefined"]
     });
-  })
+  });
 
-  test('should catch an error from the db', async () => {
-    mockingoose.Organization.toReturn(
-      new Error('My Error'), 'findOne');
-  })
-
-  test('should add a new org', async () => {
-    mockingoose.Organization.toReturn(
-      addMockOrg,
-      'save'
-    );
-
+  test("should add a new org", async () => {
+    const newOrg = new OrgModel(addMockOrg);
+    await newOrg.save();
     ctx = {
       request: {
         body: addMockOrg
       }
-    }
+    };
     await orgController.addOrg(ctx);
     expect(ctx.status).toEqual(200);
-    expect(JSON.parse(JSON.stringify(ctx.response))).toEqual(addMockOrg);
+    expect(JSON.parse(JSON.stringify(ctx.response))).toMatchObject(addMockOrg);
+  });
 
-  })
-
-  test('should return 400 in case of an error', async () => {
-    mockingoose.Organization.toReturn(new Error('My Error'), 'find');
-    await orgController.getOrgs(ctx);
+  test("should return 400 in case of an error", async () => {
+    await orgController.addOrg(ctx);
     expect(ctx.status).toEqual(400);
     expect(ctx.body).toEqual({
-      errors: ['My Error']
+      errors: ["Cannot read property 'body' of undefined"]
     });
   });
 
+  test("should send an adoption request if the query doens't exist", async () => {
+    const newOrg = new OrgModel(orgWIthQueryMock);
+   const newOrgId =  await newOrg.save()
+   const org_id = newOrgId._id.toJSON()
+   console.log(org_id, ' org with queries')
+    ctx = {
+      request: {
+        body: {user: "3725483455378" , pet: "372548345534", org: org_id}
+      }
+    };
+    await orgController.adoptionRequest(ctx);
+    expect(ctx.body).toEqual(orgWIthQueryMock);
+  });
 
-  test("Cannot read property 'body' of undefined", async () => {
-      await orgController.adoptionRequest(ctx);
-      expect(ctx.status).toEqual(400);
-      expect(ctx.body).toEqual({errors : ["Cannot read property 'body' of undefined"]})
-  })
-  })
-
-
-  test('should return 400 in case of an error', async () => {
-    mockingoose.Organization.toReturn(new Error('My Error'), 'find');
-    await orgController.getOrgs(ctx);
+  // fix this as it is throwing an error, instea dof catching it
+  test("should return an error if the context for adoption is empty", async () => {
+    await orgController.adoptionRequest(ctx);
     expect(ctx.status).toEqual(400);
     expect(ctx.body).toEqual({
-      errors: ['My Error']
+      errors: ["Cannot read property 'body' of undefined"]
     });
   });
+});
 
 //})

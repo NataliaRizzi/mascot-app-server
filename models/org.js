@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const OrganizationSchema = new mongoose.Schema({
   name: {
@@ -16,7 +16,7 @@ const OrganizationSchema = new mongoose.Schema({
   pets: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Pet'
+      ref: "Pet"
     }
   ],
   web: {
@@ -28,36 +28,27 @@ const OrganizationSchema = new mongoose.Schema({
     contentType: String,
     required: false
   },
-  queries:[
+  queries: [
     {
-      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      pet: { type: mongoose.Schema.Types.ObjectId, ref: 'Pet' },
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      pet: { type: mongoose.Schema.Types.ObjectId, ref: "Pet" },
       accepted: { type: Boolean, default: false }
-    }]
-  
+    }
+  ]
 });
 
+const Organization = mongoose.model("Organization", OrganizationSchema);
 
+Organization.appendQuery = async (userId, petId, org) => {
+  const myOrg = await Organization.findById(org);
+  // for testing I don't have access to the toJSON method
+  const isExisting = myOrg.toObject().queries.some(element => {
+    return (
+      JSON.parse(JSON.stringify(element.user)) === userId &&
+      JSON.parse(JSON.stringify(element.pet)) === petId
+    );
+  });
+  return isExisting;
+};
 
-
-const Organization = mongoose.model('Organization', OrganizationSchema);;
-
-Organization.appendQuery = async(user, pet, org) => {
-  const organization = Organization.findOne(org);
-
-    const myOrg = await Organization.findById(org)
-  //  console.log('my orgd inside the model', myOrg.toJSON().queries)
-    const myNewArray = myOrg.toJSON().queries.some(element => {
-    console.log( JSON.parse(JSON.stringify(element.user)), user, 'element.user and user');
-  
-      return (JSON.parse(JSON.stringify(element.user))=== user && JSON.parse(JSON.stringify(element.pet))===pet)
-    })
-  console.log(myNewArray, 'value of my new array');
-return myNewArray
-
-  // validate organization is valid
-  // if not throw
-  // save organization
-}
-  
 module.exports = Organization;
