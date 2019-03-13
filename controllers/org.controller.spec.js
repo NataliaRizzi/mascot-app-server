@@ -1,5 +1,5 @@
 const orgController = require("./org.controller");
-const mockData = require("./mock.utils");
+const mockData = require(".,/testing/mock.utils");
 const OrgModel = require("../models/org");
 const UserMOdel = require("../models/user")
 const mongoose = require("mongoose");
@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 let ctx;
 describe("org controller", () => {
   beforeAll(async () => {
-    await mongoose.connect(global.__MONGO_URI__);
+    // await mongoose.connect(global.__MONGO_URI__);
     orgMock = {
       name: "Help WOW",
       location: "Barcelona",

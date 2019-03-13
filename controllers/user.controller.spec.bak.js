@@ -1,6 +1,6 @@
 const userController = require('./user.controller');
 const mockingoose = require('mockingoose').default;
-const mockData = require('./mock.utils');
+const mockData = require('.,/testing/mock.utils');
 
 describe('user controller', () => {
   beforeEach(() => {
@@ -46,7 +46,7 @@ describe('user controller', () => {
     expect(ctx.status).toEqual(400);
   })
 
-  test("should update pets and messages when one adoption is accepted", async () => {
+  xtest("should update pets and messages when one adoption is accepted", async () => {
     mockingoose.User.toReturn(
       mockData.acceptAdoptionUser(),
       'findOneAndUpdate'
